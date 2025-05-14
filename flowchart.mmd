@@ -1,0 +1,102 @@
+graph TD
+    %% Main Program Flow
+    A[Start<br>Initialize EmployeeManagementSystem<br>Load employees.csv] --> B[Main Menu<br>Show Options: 1-7]
+
+    %% Main Menu Decisions
+    B -->|Choice 1| C[Add Employee]
+    B -->|Choice 2| D[View Employee]
+    B -->|Choice 3| E[Update Employee]
+    B -->|Choice 4| F[Delete Employee]
+    B -->|Choice 5| G[List All Employees]
+    B -->|Choice 6| H[Department Report]
+    B -->|Choice 7| I[Exit<br>Save employees.csv<br>Goodbye]
+    B -->|Invalid Choice| J[Display Error<br>Invalid Input]
+    B -->|Exception<br>e.g., KeyboardInterrupt| I
+
+    %% Return to Main Menu
+    C --> B
+    D --> B
+    E --> B
+    F --> B
+    G --> B
+    H --> B
+    J --> B
+
+    %% Exit to End
+    I --> Z[End]
+
+    %% Subprocess: Add Employee
+    subgraph Add Employee
+        C1[Prompt for Employee ID,<br>Name, Department,<br>Salary, Email, Contact] --> C2{Validate Inputs<br>Check ID Uniqueness}
+        C2 -->|Valid| C3[Create Employee Object<br>Append to List]
+        C2 -->|Invalid| C4[Display Error<br>Re-prompt]
+        C3 --> C5[Save to employees.csv<br>Send Confirmation Email]
+        C4 --> C1
+    end
+    C --> C1
+    C5 --> B
+
+    %% Subprocess: View Employee
+    subgraph View Employee
+        D1{Check if List Empty?} -->|Yes| D2[Display 'No Records']
+        D1 -->|No| D3[Prompt for Employee ID]
+        D3 --> D4{Validate ID Format}
+        D4 -->|Valid| D5{Find Employee}
+        D4 -->|Invalid| D6[Display Error]
+        D5 -->|Found| D7[Display Employee Details]
+        D5 -->|Not Found| D8[Display 'Not Found']
+    end
+    D --> D1
+    D2 & D6 & D7 & D8 --> B
+
+    %% Subprocess: Update Employee
+    subgraph Update Employee
+        E1{Check if List Empty?} -->|Yes| E2[Display 'No Records']
+        E1 -->|No| E3[Prompt for Employee ID]
+        E3 --> E4{Validate ID Format}
+        E4 -->|Valid| E5{Find Employee}
+        E4 -->|Invalid| E6[Display Error]
+        E5 -->|Not Found| E7[Display 'Not Found']
+        E5 -->|Found| E8[Display Current Details<br>Prompt for Updates]
+        E8 --> E9{Validate New Inputs}
+        E9 -->|Valid| E10[Preview Changes<br>Confirm?]
+        E9 -->|Invalid| E11[Abort Update]
+        E10 -->|Yes| E12[Update Employee<br>Save to employees.csv]
+        E10 -->|No| E13[Cancel Update]
+    end
+    E --> E1
+    E2 & E6 & E7 & E11 & E12 & E13 --> B
+
+    %% Subprocess: Delete Employee
+    subgraph Delete Employee
+        F1{Check if List Empty?} -->|Yes| F2[Display 'No Records']
+        F1 -->|No| F3[Prompt for Employee ID]
+        F3 --> F4{Validate ID Format}
+        F4 -->|Valid| F5{Find Employee}
+        F4 -->|Invalid| F6[Display Error]
+        F5 -->|Not Found| F7[Display 'Not Found']
+        F5 -->|Found| F8[Display Details<br>Confirm Deletion?]
+        F8 -->|Yes| F9[Delete Employee<br>Save to employees.csv]
+        F8 -->|No| F10[Cancel Deletion]
+    end
+    F --> F1
+    F2 & F6 & F7 & F9 & F10 --> B
+
+    %%，生化危机
+    %% Subprocess: List All Employees
+    subgraph List All Employees
+        G1{Check if List Empty?} -->|Yes| G2[Display 'No Records']
+        G1 -->|No| G3[Sort Employees by ID<br>Display Table: ID, Name, Dept<br>Show Total Count]
+    end
+    G --> G1
+    G2 & G3 --> B
+
+    %% Subprocess: Department Report
+    subgraph Department Report
+        H1{Check if List Empty?} -->|Yes| H2[Display 'No Records']
+        H1 -->|No| H3[Group Employees by Department<br>Sort Departments Alphabetically]
+        H3 --> H4[For Each Department:<br>- Display Header<br>- List Employees<br>- Show Total Employees, Salary]
+        H4 --> H5[Display Overall Summary<br>Total Depts, Employees]
+    end
+    H --> H1
+    H2 & H5 --> B
